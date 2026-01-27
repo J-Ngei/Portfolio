@@ -80,38 +80,6 @@ export const project = {
       description: 'Link to GitHub repository'
     },
     {
-      name: 'content',
-      title: 'Project Details',
-      type: 'array',
-      of: [
-        {type: 'block'},
-        {
-          type: 'image',
-          options: {hotspot: true},
-          fields: [
-            {
-              name: 'alt',
-              type: 'string',
-              title: 'Alternative Text'
-            }
-          ]
-        }
-      ],
-      validation: Rule => Rule.required()
-    },
-    {
-      name: 'startDate',
-      title: 'Start Date',
-      type: 'date',
-      validation: Rule => Rule.required()
-    },
-    {
-      name: 'endDate',
-      title: 'End Date',
-      type: 'date',
-      description: 'Leave empty if still in progress'
-    },
-    {
       name: 'featured',
       title: 'Featured Project',
       type: 'boolean',
@@ -120,14 +88,12 @@ export const project = {
     },
     {
       name: 'pages',
-      title: 'Presentation Pages',
+      title: 'Project Pages',
       type: 'array',
       of: [
-        {
-          type: 'projectPage'
-        }
+        {type: 'projectPage'}
       ],
-      description: 'Add presentation pages for this project',
+      description: 'Add pages for this project',
       validation: Rule => Rule.min(1).required()
     }
   ],

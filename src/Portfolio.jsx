@@ -127,80 +127,6 @@ const Portfolio = () => {
       aiml: []
     },
     research: [],
-    thoughts: [
-      {
-        id: 1,
-        title: "The Future of Geographic Information Systems: Beyond Mapping",
-        excerpt: "Exploring how GIS technology is evolving with AI, big data, and spatial analysis to create new possibilities we could barely imagine a decade ago.",
-        date: "December 15, 2024",
-        readTime: "8 min read",
-        author: "James Ngei",
-        content: [
-          {
-            type: "text",
-            content: "Geographic Information Systems have evolved **far beyond simple digital maps**. As we stand at the intersection of artificial intelligence, big data, and spatial analysis, the potential applications of GIS technology are expanding into territories we could *barely imagine* a decade ago."
-          },
-          {
-            type: "heading",
-            level: 2,
-            content: "The New Frontier of Spatial Intelligence"
-          },
-          {
-            type: "text",
-            content: "Modern GIS is no longer just about creating static maps. Today's systems integrate real-time data streams, machine learning algorithms, and advanced visualization techniques to provide dynamic, interactive spatial intelligence."
-          }
-        ],
-        isExpanded: false
-      },
-      {
-        id: 2,
-        title: "Data Visualization: Telling Stories with Numbers",
-        excerpt: "In an era of information overload, effective data visualization is more important than ever. Learn how to transform complex datasets into compelling visual narratives.",
-        date: "November 28, 2024",
-        readTime: "6 min read",
-        author: "James Ngei",
-        content: [
-          {
-            type: "text",
-            content: "In today's data-driven world, the ability to effectively visualize information is no longer just a nice-to-have skill—it's a necessity. **Good data visualization** bridges the gap between complex data and human understanding."
-          },
-          {
-            type: "heading",
-            level: 2,
-            content: "The Power of Visual Communication"
-          },
-          {
-            type: "text",
-            content: "Humans are visual creatures. We process images *60,000 times faster* than text, and 90% of information transmitted to the brain is visual. This is why well-designed charts and graphs can convey complex information more effectively than spreadsheets full of numbers."
-          }
-        ],
-        isExpanded: false
-      },
-      {
-        id: 3,
-        title: "The Intersection of GIS and Public Health",
-        excerpt: "How geographic information systems are transforming disease surveillance, healthcare access, and public health policy in the 21st century.",
-        date: "October 15, 2024",
-        readTime: "7 min read",
-        author: "James Ngei",
-        content: [
-          {
-            type: "text",
-            content: "The COVID-19 pandemic underscored the critical role of **spatial analysis** in public health. GIS technology emerged as a powerful tool for tracking disease spread, allocating healthcare resources, and informing public policy decisions."
-          },
-          {
-            type: "heading",
-            level: 2,
-            content: "Disease Surveillance and Outbreak Response"
-          },
-          {
-            type: "text",
-            content: "Modern GIS platforms enable real-time disease tracking, allowing public health officials to identify hotspots, predict spread patterns, and implement targeted interventions."
-          }
-        ],
-        isExpanded: false
-      }
-    ],
     contact: {}
   });
 
@@ -307,6 +233,8 @@ const Portfolio = () => {
       sourceCodeUrl,
       content,
       pages[] {
+        _key,
+        pageType,
         title,
         content,
         isImageOnly,
@@ -318,6 +246,111 @@ const Portfolio = () => {
           },
           alt,
           caption
+        },
+        performanceTemplate {
+          hero {
+            title,
+            subtitle,
+            tags,
+            colorTheme
+          },
+          metrics[] {
+            value,
+            label,
+            color
+          },
+          overview,
+          problem {
+            title,
+            description,
+            points,
+            theme
+          },
+          solution {
+            sectionTitle,
+            layout,
+            cards[] {
+              icon,
+              title,
+              description,
+              colorTheme
+            }
+          },
+          results {
+            sectionTitle,
+            displayType,
+            table {
+              headers,
+              rows[] {
+                col1,
+                col2,
+                col3,
+                col4
+              }
+            },
+            resultImages[] {
+              asset->{
+                _id,
+                _ref,
+                url
+              },
+              alt,
+              caption
+            }
+          },
+          keyLearnings {
+            sectionTitle,
+            layout,
+            learnings[] {
+              icon,
+              title,
+              description,
+              colorTheme
+            }
+          },
+          codeHighlight {
+            sectionTitle,
+            code,
+            language
+          }
+        },
+        technicalTemplate {
+          title,
+          sections[] {
+            _type,
+            _key,
+            title,
+            content,
+            image {
+              asset->{
+                _id,
+                _ref,
+                url
+              },
+              alt,
+              caption
+            },
+            size,
+            diagram {
+              asset->{
+                _id,
+                _ref,
+                url
+              },
+              alt
+            }
+          }
+        },
+        galleryTemplate {
+          images[] {
+            asset->{
+              _id,
+              _ref,
+              url
+            },
+            alt,
+            caption
+          }
         }
       }
     }`);
@@ -327,19 +360,50 @@ const Portfolio = () => {
     const softwareProjects = projects.filter(p => p.category === 'software');
     const aimlProjects = projects.filter(p => p.category === 'aiml');
 
+    let thoughts = [];
+    try {
+      console.log('Fetching thoughts from Sanity...');
+      thoughts = await sanityClient.fetch(`
+        *[_type == "thoughts" && !(_id in path('drafts.**'))] | order(publishedAt desc) {
+          _id,
+          title,
+          excerpt,
+          content,
+          publishedAt,
+          slug {
+            current
+          },
+          "authorName": "James Ngei",
+          "authorImage": "", // We'll update this later with the actual profile image
+          coverImage {
+            asset->{
+              _id,
+              url,
+              metadata {
+                dimensions {
+                  width,
+                  height,
+                  aspectRatio
+                }
+              }
+            },
+            alt,
+            caption
+          },
+          tags,
+          isPinned,
+          mood,
+          "body": content
+        }
+      `);
+      console.log('Fetched thoughts:', thoughts);
+    } catch (error) {
+      console.error('Error fetching thoughts:', error);
+      thoughts = [];
+    }
+
     const research = await sanityClient.fetch(`*[_type == "research"] | order(publishedAt desc){
       title, abstract, authors, journal, year, link
-    }`);
-
-    const thoughts = await sanityClient.fetch(`*[_type == "blogPost"] | order(publishedAt desc){
-      title,
-      excerpt,
-      body,
-      publishedAt,
-      slug,
-      coverImage,
-      "authorName": author->name,
-      "authorImage": author->image.asset->url
     }`);
 
     if (about || projects || research || thoughts || profile) {
@@ -527,18 +591,20 @@ const Portfolio = () => {
               })}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {isLoading ? (
                 // Loading state
-                <div className="col-span-2 text-center py-16">
+                <div className="col-span-3 text-center py-16">
                   <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-teal-500 border-t-transparent mb-4"></div>
                   <p className="text-slate-600 dark:text-gray-400">Loading projects...</p>
                 </div>
               ) : content.projects[activeProjectTab]?.length > 0 ? (
-                // Projects list
-                content.projects[activeProjectTab].map((project, i) => (
-                  <ProjectCard key={i} project={project} />
-                ))
+                // Projects list - sort by date (newest first) and map
+                [...content.projects[activeProjectTab]]
+                  .sort((a, b) => new Date(b.date || b._createdAt) - new Date(a.date || a._createdAt))
+                  .map((project, i) => (
+                    <ProjectCard key={i} project={project} />
+                  ))
               ) : (
                 // Empty state
                 <div className="col-span-2 text-center py-16 text-slate-500 dark:text-gray-400">
@@ -586,9 +652,14 @@ const Portfolio = () => {
           <div className="w-full">
             <h2 className="text-4xl font-bold text-slate-800 dark:text-white mb-8">Thoughts & Perspectives</h2>
             <div className="space-y-4 w-full">
-              {content.thoughts.length > 0 ? (
+              {isLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-500 mx-auto mb-4"></div>
+                  <p className="text-slate-600 dark:text-gray-400">Loading thoughts...</p>
+                </div>
+              ) : content.thoughts && content.thoughts.length > 0 ? (
                 content.thoughts.map((post, i) => (
-                  <div key={i} className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 border border-teal-100 dark:border-gray-700 overflow-hidden">
+                  <div key={i} className="bg-amber-50 dark:bg-gray-800 rounded-lg shadow-md shadow-teal-100/50 hover:shadow-lg hover:shadow-teal-100/70 transition-shadow duration-200 border border-amber-100 dark:border-gray-700 overflow-hidden">
                     <button 
                       onClick={() => {
                         const updatedThoughts = [...content.thoughts];
@@ -598,7 +669,7 @@ const Portfolio = () => {
                         };
                         setContent({...content, thoughts: updatedThoughts});
                       }}
-                      className="w-full text-left p-4 flex justify-between items-center hover:bg-slate-50 dark:hover:bg-gray-700/50 transition-colors"
+                      className="w-full text-left p-4 flex justify-between items-center hover:bg-amber-100/50 dark:hover:bg-gray-700/50 transition-colors"
                     >
                       <h3 className="text-lg font-medium text-slate-800 dark:text-white">{post.title}</h3>
                       <span className={`transform transition-transform ${post.isExpanded ? 'rotate-45' : 'rotate-0'}`}>
@@ -609,7 +680,7 @@ const Portfolio = () => {
                     </button>
                     
                     {post.isExpanded && (
-                      <div className="px-4 pb-4 pt-2 border-t border-slate-100 dark:border-gray-700">
+                      <div className="px-4 pb-4 pt-2 border-t border-amber-100 dark:border-gray-700 max-w-[793px] mx-auto w-full lg:px-8">
                         <div className="flex items-center gap-3 mb-4">
                           {post.authorImage && (
                             <img 
@@ -651,17 +722,7 @@ const Portfolio = () => {
                           </div>
                         )}
                         
-                        <div className="flex items-center justify-between mt-6">
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              // Handle read more action
-                            }}
-                            className="text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium flex items-center gap-1 text-sm group"
-                          >
-                            Continue reading <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                          </button>
-                          
+                        <div className="flex items-center justify-end mt-6">
                           <div className="flex gap-2">
                             {post.tags?.map((tag, i) => (
                               <span key={i} className="px-2 py-1 text-xs bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 rounded-full">

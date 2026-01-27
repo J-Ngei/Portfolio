@@ -29,6 +29,36 @@ export const thoughts = {
       validation: Rule => Rule.required()
     },
     {
+      name: 'excerpt',
+      title: 'Excerpt',
+      type: 'text',
+      rows: 3,
+      description: 'A short summary of the thought',
+      validation: Rule => Rule.required().max(200)
+    },
+    {
+      name: 'coverImage',
+      title: 'Cover Image',
+      type: 'image',
+      options: {
+        hotspot: true
+      },
+      fields: [
+        {
+          name: 'alt',
+          type: 'string',
+          title: 'Alternative Text',
+          validation: Rule => Rule.required()
+        },
+        {
+          name: 'caption',
+          type: 'string',
+          title: 'Caption',
+          description: 'Optional caption for the image'
+        }
+      ]
+    },
+    {
       name: 'content',
       title: 'Content',
       type: 'array',
