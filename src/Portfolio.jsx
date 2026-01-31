@@ -298,6 +298,25 @@ const Portfolio = () => {
               caption
             }
           },
+          architecture {
+            sectionTitle,
+            diagramType,
+            image {
+              asset->{
+                _id,
+                _ref,
+                url
+              },
+              alt,
+              caption
+            },
+            mermaidCode,
+            description
+          },
+          projectLinks {
+            githubUrl,
+            demoUrl
+          },
           keyLearnings {
             sectionTitle,
             layout,

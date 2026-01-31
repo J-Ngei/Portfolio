@@ -170,6 +170,90 @@ export const projectPage = {
           of: [{type: 'block'}]
         },
         {
+          name: 'architecture',
+          title: 'Project Architecture',
+          type: 'object',
+          description: 'Add system architecture diagram or Mermaid diagram',
+          fields: [
+            {
+              name: 'sectionTitle',
+              title: 'Section Title',
+              type: 'string',
+              initialValue: 'System Architecture'
+            },
+            {
+              name: 'diagramType',
+              title: 'Diagram Type',
+              type: 'string',
+              options: {
+                list: [
+                  {title: '🖼️ Image Upload', value: 'image'},
+                  {title: '📊 Mermaid Diagram (Code)', value: 'mermaid'}
+                ],
+                layout: 'radio'
+              },
+              initialValue: 'image',
+              validation: Rule => Rule.required()
+            },
+            {
+              name: 'image',
+              title: 'Architecture Diagram',
+              type: 'image',
+              options: {hotspot: true},
+              fields: [
+                {
+                  name: 'alt',
+                  title: 'Alt Text',
+                  type: 'string',
+                  validation: Rule => Rule.required()
+                },
+                {
+                  name: 'caption',
+                  title: 'Caption',
+                  type: 'string'
+                }
+              ],
+              hidden: ({ parent }) => parent?.diagramType !== 'image',
+              validation: Rule => Rule.custom((image, context) => {
+                const diagramType = context.parent?.diagramType;
+                if (diagramType === 'image' && !image) {
+                  return 'Architecture image is required when diagram type is "Image Upload"';
+                }
+                return true;
+              })
+            },
+            {
+              name: 'mermaidCode',
+              title: 'Mermaid Diagram Code',
+              type: 'text',
+              rows: 12,
+              description: 'Enter Mermaid diagram syntax (e.g., flowchart, sequence diagram, etc.)',
+              placeholder: `graph TD
+    A[Client] -->|HTTP Request| B[API Gateway]
+    B --> C[Load Balancer]
+    C --> D[App Server 1]
+    C --> E[App Server 2]
+    D --> F[Database]
+    E --> F`,
+              hidden: ({ parent }) => parent?.diagramType !== 'mermaid',
+              validation: Rule => Rule.custom((code, context) => {
+                const diagramType = context.parent?.diagramType;
+                if (diagramType === 'mermaid' && !code) {
+                  return 'Mermaid code is required when diagram type is "Mermaid Diagram"';
+                }
+                return true;
+              })
+            },
+            {
+              name: 'description',
+              title: 'Description',
+              type: 'text',
+              rows: 3,
+              description: 'Optional description of the architecture'
+            }
+          ]
+        },
+        {
           name: 'problem',
           title: 'Problem Statement',
           type: 'object',
@@ -474,6 +558,30 @@ export const projectPage = {
                   {title: 'JSON', value: 'json'}
                 ]
               }
+            }
+          ]
+        },
+        {
+          name: 'projectLinks',
+          title: 'Project Links',
+          type: 'object',
+          description: 'Links shown at the bottom of the page',
+          fields: [
+            {
+              name: 'githubUrl',
+              title: 'GitHub Repository URL',
+              type: 'url',
+              validation: Rule => Rule.uri({
+                scheme: ['http', 'https']
+              })
+            },
+            {
+              name: 'demoUrl',
+              title: 'Live Demo URL',
+              type: 'url',
+              validation: Rule => Rule.uri({
+                scheme: ['http', 'https']
+              })
             }
           ]
         }

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { PortableText } from '@portabletext/react';
+import { Github, ExternalLink, ArrowLeft } from 'lucide-react';
 
 // Import your existing performance sections
 import HeroSection from '../sections/HeroSection';
@@ -10,7 +11,146 @@ import ResultsSection from '../sections/ResultsSection';
 import KeyLearningsGrid from '../sections/KeyLearningsGrid';
 import CodeHighlight from '../sections/CodeHighlight';
 
-const PerformanceTemplate = ({ data, imageUrlBuilder, portableTextComponents }) => {
+// Architecture Section Component
+const ArchitectureSection = ({ data, imageUrlBuilder }) => {
+  const mermaidRef = useRef(null);
+
+  useEffect(() => {
+    // Load Mermaid only if needed
+    if (data?.diagramType === 'mermaid' && data?.mermaidCode) {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+      script.async = true;
+      
+      script.onload = () => {
+        if (window.mermaid) {
+          window.mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose'
+          });
+          
+          if (mermaidRef.current) {
+            window.mermaid.contentLoaded();
+          }
+        }
+      };
+      
+      document.body.appendChild(script);
+      
+      return () => {
+        if (document.body.contains(script)) {
+          document.body.removeChild(script);
+        }
+      };
+    }
+  }, [data?.diagramType, data?.mermaidCode]);
+
+  if (!data || (!data.image && !data.mermaidCode)) {
+    return null;
+  }
+
+  return (
+    <section className="mb-16">
+      <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
+        {data.sectionTitle || 'System Architecture'}
+      </h2>
+      
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+        {/* Image Diagram */}
+        {data.diagramType === 'image' && data.image && (
+          <div className="space-y-4">
+            <div className="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+              <img
+                src={imageUrlBuilder(data.image)}
+                alt={data.image.alt || 'Architecture diagram'}
+                className="w-full h-auto"
+              />
+            </div>
+            {data.image.caption && (
+              <p className="text-sm text-gray-600 dark:text-gray-400 text-center italic">
+                {data.image.caption}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Mermaid Diagram */}
+        {data.diagramType === 'mermaid' && data.mermaidCode && (
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-6 overflow-x-auto">
+            <div 
+              ref={mermaidRef}
+              className="mermaid flex justify-center"
+            >
+              {data.mermaidCode}
+            </div>
+          </div>
+        )}
+
+        {/* Description */}
+        {data.description && (
+          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+              {data.description}
+            </p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+};
+
+// Project Links Component
+const ProjectLinks = ({ githubUrl, demoUrl, onBackClick }) => {
+  const hasAnyLink = githubUrl || demoUrl;
+  
+  if (!hasAnyLink && !onBackClick) {
+    return null;
+  }
+
+  return (
+    <section className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-700">
+      <div className="flex flex-wrap items-center justify-center gap-4">
+        {/* Back to Projects */}
+        <button
+          onClick={onBackClick}
+          className="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors font-medium"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          All Projects
+        </button>
+
+        {/* GitHub Link */}
+        {githubUrl && (
+          <a
+            href={githubUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors font-medium"
+          >
+            <Github className="w-4 h-4" />
+            View Code
+          </a>
+        )}
+
+        {/* Demo Link */}
+        {demoUrl && (
+          <a
+            href={demoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors font-medium"
+          >
+            <ExternalLink className="w-4 h-4" />
+            Live Demo
+          </a>
+        )}
+      </div>
+    </section>
+  );
+};
+
+const PerformanceTemplate = ({ data, imageUrlBuilder, portableTextComponents, onClose }) => {
   console.log('🎯 PerformanceTemplate received data:', data);
   console.log('📦 performanceTemplate nested data:', data.performanceTemplate);
   
@@ -36,11 +176,13 @@ const PerformanceTemplate = ({ data, imageUrlBuilder, portableTextComponents }) 
     hasHero: !!template.hero,
     hasMetrics: !!template.metrics,
     hasOverview: !!template.overview,
+    hasArchitecture: !!template.architecture,
     hasProblem: !!template.problem,
     hasSolution: !!template.solution,
     hasResults: !!template.results,
     hasKeyLearnings: !!template.keyLearnings,
-    hasCodeHighlight: !!template.codeHighlight
+    hasCodeHighlight: !!template.codeHighlight,
+    hasProjectLinks: !!template.projectLinks
   });
 
   return (
@@ -79,6 +221,14 @@ const PerformanceTemplate = ({ data, imageUrlBuilder, portableTextComponents }) 
           </section>
         )}
 
+        {/* Architecture Section - NEW */}
+        {template.architecture && (
+          <ArchitectureSection 
+            data={template.architecture} 
+            imageUrlBuilder={imageUrlBuilder} 
+          />
+        )}
+
         {/* Problem Section */}
         {template.problem && <ProblemSection data={template.problem} />}
 
@@ -99,6 +249,15 @@ const PerformanceTemplate = ({ data, imageUrlBuilder, portableTextComponents }) 
         {/* Code Highlight */}
         {template.codeHighlight && template.codeHighlight.code && (
           <CodeHighlight data={template.codeHighlight} />
+        )}
+
+        {/* Project Links - NEW */}
+        {(template.projectLinks || onClose) && (
+          <ProjectLinks 
+            githubUrl={template.projectLinks?.githubUrl}
+            demoUrl={template.projectLinks?.demoUrl}
+            onBackClick={onClose}
+          />
         )}
       </div>
     </div>

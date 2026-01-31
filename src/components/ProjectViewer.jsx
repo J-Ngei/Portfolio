@@ -262,6 +262,7 @@ const ProjectViewer = ({ project, onClose }) => {
               toggleFullscreen={toggleFullscreen}
               currentImageIndex={currentImageIndex}
               setCurrentImageIndex={setCurrentImageIndex}
+              onClose={onClose}
             />
           </div>
         </div>
