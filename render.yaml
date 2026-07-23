@@ -1,0 +1,18 @@
+# Render blueprint for the portfolio bot backend.
+# In the Render dashboard: New + -> Blueprint -> connect this repo. Render reads
+# this file and creates the service. Then set the GROQ_API_KEY secret (below).
+services:
+  - type: web
+    name: portfolio-bot
+    runtime: python
+    rootDir: portfolio_bot
+    plan: free            # free tier: sleeps after ~15 min idle, cold-starts on next request
+    region: frankfurt     # closest free-tier region to Kenya
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false       # secret — set its value in the Render dashboard, never in this file
+      - key: ALLOWED_ORIGINS
+        value: https://james-ngei.github.io

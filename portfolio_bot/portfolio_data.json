@@ -1,0 +1,41 @@
+{
+  "about": "James Ngei is a Geospatial Software Engineer who builds robust, cloud-native spatial systems that transform raw data into actionable intelligence. With a background in GIS and Software Engineering, he works at the intersection of mapping technology and solid system architecture. His path began with a fascination for how location shapes everything: while studying Geospatial Information Science he found the real power was in building systems that process spatial data at scale. Early work processing satellite datasets and building location analytics taught him that great geospatial systems need both spatial thinking and solid engineering. He is currently pursuing an MSc in Software Engineering, focusing on large-scale systems and advanced computing. Long-term, he is drawn to building intelligent spatial systems that support sustainable development, agriculture, and infrastructure planning. He prioritizes data accuracy and system reliability over feature bloat, and designs for real users — field workers with spotty connectivity, analysts processing terabytes of imagery — making complex spatial problems feel simple. Core stack and skills: Python, JavaScript/TypeScript, React, FastAPI, Django, Node.js and RESTful APIs; PostGIS, GDAL, GeoPandas, GeoServer, QGIS, ArcGIS Pro, Mapbox, Leaflet and OpenLayers; spatial analysis, multi-criteria evaluation, geostatistics, remote sensing and ML integration; Docker, Kubernetes, CI/CD, serverless architectures and COG workflows; microservices, API design, database optimization and distributed spatial systems; and geospatial data engineering including ETL pipelines, spatial databases, data validation, tile generation and quality assurance.",
+  "projects": [
+    {
+      "id": "vector-etl-pipeline",
+      "title": "Vector ETL Pipeline",
+      "description": "Production-grade vector data validation, repair, and loading in under 60 seconds.",
+      "details": "An automated ETL pipeline that validates incoming vector datasets, repairs invalid geometries, and loads them into a spatial database, completing the full cycle in under 60 seconds. It integrates into a CI/CD workflow so data quality checks run automatically on every ingest.",
+      "tags": ["Data Engineering", "PostGIS", "CI/CD"],
+      "code_url": null,
+      "demo_url": null
+    },
+    {
+      "id": "spatial-query-performance-optimization",
+      "title": "Spatial Query Performance Optimization",
+      "description": "14x to 292x query speedup through PostGIS spatial indexing on 625k+ features.",
+      "details": "A performance study on a dataset of over 625,000 features, using PostGIS spatial indexing strategies to achieve query speedups ranging from 14x to 292x. Built on FastAPI and SQLAlchemy, it demonstrates how the right indexing approach turns slow spatial queries into responsive API endpoints.",
+      "tags": ["PostGIS", "FastAPI", "SQLAlchemy"],
+      "code_url": null,
+      "demo_url": null
+    },
+    {
+      "id": "crop-suitability-engine",
+      "title": "Crop Suitability Engine: A Spatial Decision Support System",
+      "description": "A full-stack geospatial MCDA platform for evaluating land suitability for crops.",
+      "details": "A full-stack spatial decision support system that evaluates land suitability for crops using multi-criteria decision analysis (MCDA). This was the Quantic capstone project: a FastAPI backend deployed on Render with a React frontend on GitHub Pages, driving an MCDA methodology over a spatial data pipeline.",
+      "tags": ["FastAPI", "Rasterio", "Python"],
+      "code_url": null,
+      "demo_url": null
+    },
+    {
+      "id": "cog-raster-pipeline",
+      "title": "Cloud-Optimized Raster Processing & Delivery Pipeline",
+      "description": "A Dockerized pipeline that converts raw DEM rasters into Cloud-Optimized GeoTIFFs.",
+      "details": "A Dockerized processing pipeline that converts raw DEM rasters into Cloud-Optimized GeoTIFFs (COGs) using GDAL, then delivers them for efficient cloud-native access and streaming without downloading whole files.",
+      "tags": ["Python", "Docker", "GDAL"],
+      "code_url": null,
+      "demo_url": null
+    }
+  ]
+}
