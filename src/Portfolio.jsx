@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Code, Brain, User, FileText, Mail, ChevronRight, ChevronLeft, ExternalLink, Github, Linkedin, X, Moon, Sun, Menu } from 'lucide-react';
+import { MapPin, Code, Package, User, FileText, Mail, ChevronRight, ChevronLeft, ExternalLink, Github, Linkedin, X, Moon, Sun, Menu } from 'lucide-react';
 import { useTheme } from './context/ThemeContext';
 import ProjectViewer from './components/ProjectViewer';
 import AboutPage from './components/AboutPage';
 import ContactPage from './components/ContactPage';
+import PortfolioBot from './components/PortfolioBot';
 import { PortableText } from '@portabletext/react';
 
 // Sanity client configuration
@@ -280,12 +281,20 @@ const Portfolio = () => {
             sectionTitle,
             displayType,
             table {
+              columns[] {
+                title
+              },
               headers,
               rows[] {
+                cells,
                 col1,
                 col2,
                 col3,
-                col4
+                col4,
+                col5,
+                col6,
+                col7,
+                col8
               }
             },
             resultImages[] {
@@ -457,8 +466,8 @@ const Portfolio = () => {
   const navItems = [
     { id: 'about', label: 'About', icon: User },
     { id: 'projects', label: 'Projects', icon: Code },
-    { id: 'research', label: 'Research', icon: FileText },
-    { id: 'thoughts', label: 'Thoughts', icon: Brain },
+    { id: 'research', label: 'Research', icon: FileText, disabled: true },
+    { id: 'thoughts', label: 'Products', icon: Package, disabled: true },
     { id: 'contact', label: 'Contact', icon: Mail }
   ];
 
@@ -669,12 +678,12 @@ const Portfolio = () => {
       case 'thoughts':
         return (
           <div className="w-full">
-            <h2 className="text-4xl font-bold text-slate-800 dark:text-white mb-8">Thoughts & Perspectives</h2>
+            <h2 className="text-4xl font-bold text-slate-800 dark:text-white mb-8">Products</h2>
             <div className="space-y-4 w-full">
               {isLoading ? (
                 <div className="text-center py-8">
                   <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-500 mx-auto mb-4"></div>
-                  <p className="text-slate-600 dark:text-gray-400">Loading thoughts...</p>
+                  <p className="text-slate-600 dark:text-gray-400">Loading products...</p>
                 </div>
               ) : content.thoughts && content.thoughts.length > 0 ? (
                 content.thoughts.map((post, i) => (
@@ -756,9 +765,9 @@ const Portfolio = () => {
                 ))
               ) : (
                 <div className="text-center py-16 text-slate-500 dark:text-gray-400">
-                  <Brain className="w-16 h-16 mx-auto mb-4 text-slate-300 dark:text-gray-600" />
-                  <p className="text-lg">No articles yet.</p>
-                  <p className="text-sm">Check back soon for new thoughts and perspectives!</p>
+                  <Package className="w-16 h-16 mx-auto mb-4 text-slate-300 dark:text-gray-600" />
+                  <p className="text-lg">No products yet.</p>
+                  <p className="text-sm">Products and courses will be added soon.</p>
                 </div>
               )}
             </div>
@@ -834,11 +843,16 @@ const Portfolio = () => {
                 return (
                   <button
                     key={item.id}
-                    onClick={() => handleNavigation(item.id)}
+                    onClick={() => {
+                      if (!item.disabled) handleNavigation(item.id);
+                    }}
+                    disabled={item.disabled}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all mb-2 ${
                       isActive 
-                        ? 'bg-teal-600 text-white' 
-                        : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+                        ? 'bg-teal-600 text-white'
+                        : item.disabled
+                          ? 'text-slate-500 cursor-not-allowed opacity-60'
+                          : 'text-slate-300 hover:bg-slate-700 hover:text-white'
                     }`}
                   >
                     <Icon className="w-5 h-5" />
@@ -887,6 +901,8 @@ const Portfolio = () => {
         </div>
       )}
 
+      <PortfolioBot />
+
       {/* Desktop Sidebar - Hidden on mobile, always visible on desktop */}
       <aside className={`hidden lg:flex flex-col bg-gradient-to-b from-slate-900 via-slate-800 to-teal-900 text-white transition-all duration-300 ease-in-out h-screen overflow-y-auto ${
         sidebarExpanded ? 'w-72' : 'w-20'
@@ -931,14 +947,20 @@ const Portfolio = () => {
                 <div key={item.id} className="w-full flex justify-center">
                   <button
                     onClick={() => {
+                      if (item.disabled) return;
                       setActiveSection(item.id);
                       if (item.id !== 'about') {
                         setSidebarExpanded(false);
                       }
                     }}
                     className={`relative flex flex-col items-center py-2 px-4 transition-all duration-200 w-full max-w-[180px] ${
-                      isActive ? 'text-teal-400' : 'text-slate-400 hover:text-white'
+                      isActive
+                        ? 'text-teal-400'
+                        : item.disabled
+                          ? 'text-slate-500 cursor-not-allowed opacity-60'
+                          : 'text-slate-400 hover:text-white'
                     }`}
+                    disabled={item.disabled}
                     title={!sidebarExpanded ? item.label : ''}
                   >
                     <div className="flex items-center gap-3 pb-1">

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { PortableText } from '@portabletext/react';
 import { Github, ExternalLink, ArrowLeft } from 'lucide-react';
 
@@ -12,39 +12,160 @@ import KeyLearningsGrid from '../sections/KeyLearningsGrid';
 import CodeHighlight from '../sections/CodeHighlight';
 
 // Architecture Section Component
+const MAX_MERMAID_LABEL_CHARS = 18;
+const MERMAID_LABEL_PADDING = '\u00A0\u00A0';
+
 const ArchitectureSection = ({ data, imageUrlBuilder }) => {
   const mermaidRef = useRef(null);
+  const [isDarkMode, setIsDarkMode] = useState(() =>
+    document.documentElement.classList.contains('dark')
+  );
+
+  const wrapMermaidLabel = (rawLabel, maxChars) => {
+    if (!rawLabel) return rawLabel;
+    if (/<br\s*\/?>|\n/.test(rawLabel)) return rawLabel;
+
+    const leading = rawLabel.match(/^\s*/)?.[0] ?? '';
+    const trailing = rawLabel.match(/\s*$/)?.[0] ?? '';
+    const trimmed = rawLabel.trim();
+    if (!trimmed) return rawLabel;
+
+    const hasQuote =
+      (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+      (trimmed.startsWith("'") && trimmed.endsWith("'"));
+    const quote = hasQuote ? trimmed[0] : '';
+    const inner = hasQuote ? trimmed.slice(1, -1) : trimmed;
+
+    const padLine = (line) => `${MERMAID_LABEL_PADDING}${line}${MERMAID_LABEL_PADDING}`;
+    if (inner.length <= maxChars) {
+      const padded = padLine(inner);
+      return `${leading}${quote}${padded}${quote}${trailing}`;
+    }
+
+    const words = inner.split(/\s+/);
+    const lines = [];
+    let current = '';
+
+    words.forEach((word) => {
+      if (!word) return;
+      if (!current) {
+        current = word;
+        return;
+      }
+      const next = `${current} ${word}`;
+      if (next.length <= maxChars) {
+        current = next;
+      } else {
+        lines.push(current);
+        current = word;
+      }
+    });
+
+    if (current) lines.push(current);
+
+    const wrapped = lines.map(padLine).join('\n');
+    return `${leading}${quote}${wrapped}${quote}${trailing}`;
+  };
+
+  const wrapMermaidCode = (code, maxChars) => {
+    if (!code) return code;
+    const nodeId = '[A-Za-z0-9_:-]+';
+    const patterns = [
+      new RegExp(`\\b(${nodeId})\\s*(\\[\\[)([^\\]]+?)(\\]\\])`, 'g'),
+      new RegExp(`\\b(${nodeId})\\s*(\\(\\()([^\\)]+?)(\\)\\))`, 'g'),
+      new RegExp(`\\b(${nodeId})\\s*(\\{\\{)([^\\}]+?)(\\}\\})`, 'g'),
+      new RegExp(`\\b(${nodeId})\\s*(\\[)([^\\]]+?)(\\])`, 'g'),
+      new RegExp(`\\b(${nodeId})\\s*(\\()([^\\)]+?)(\\))`, 'g'),
+      new RegExp(`\\b(${nodeId})\\s*(\\{)([^\\}]+?)(\\})`, 'g'),
+    ];
+
+    return patterns.reduce(
+      (acc, pattern) =>
+        acc.replace(pattern, (match, id, open, label, close) => {
+          const wrapped = wrapMermaidLabel(label, maxChars);
+          return `${id}${open}${wrapped}${close}`;
+        }),
+      code
+    );
+  };
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(root.classList.contains('dark'));
+    });
+    observer.observe(root, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     // Load Mermaid only if needed
     if (data?.diagramType === 'mermaid' && data?.mermaidCode) {
+      const renderMermaid = () => {
+        if (!window.mermaid || !mermaidRef.current) return;
+        mermaidRef.current.removeAttribute('data-processed');
+        mermaidRef.current.innerHTML = wrapMermaidCode(
+          data.mermaidCode,
+          MAX_MERMAID_LABEL_CHARS
+        );
+        window.mermaid.contentLoaded();
+      };
+
+      const initializeMermaid = () => {
+        if (!window.mermaid) return;
+        window.mermaid.initialize({
+          startOnLoad: true,
+          theme: isDarkMode ? 'dark' : 'default',
+          securityLevel: 'loose',
+          flowchart: {
+            htmlLabels: false,
+            useMaxWidth: false,
+          },
+          themeVariables: {
+            fontFamily: 'inherit',
+            fontSize: '14px',
+            ...(isDarkMode
+              ? {
+                  lineColor: '#e2e8f0',
+                  textColor: '#e2e8f0',
+                  primaryTextColor: '#e2e8f0',
+                  secondaryTextColor: '#e2e8f0',
+                }
+              : {}),
+          },
+        });
+
+        renderMermaid();
+
+        if (document.fonts?.ready) {
+          document.fonts.ready.then(() => {
+            renderMermaid();
+          });
+        }
+      };
+
+      if (window.mermaid) {
+        initializeMermaid();
+        return;
+      }
+
       const script = document.createElement('script');
       script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
       script.async = true;
-      
+
       script.onload = () => {
-        if (window.mermaid) {
-          window.mermaid.initialize({ 
-            startOnLoad: true,
-            theme: 'default',
-            securityLevel: 'loose'
-          });
-          
-          if (mermaidRef.current) {
-            window.mermaid.contentLoaded();
-          }
-        }
+        initializeMermaid();
       };
-      
+
       document.body.appendChild(script);
-      
+
       return () => {
         if (document.body.contains(script)) {
           document.body.removeChild(script);
         }
       };
     }
-  }, [data?.diagramType, data?.mermaidCode]);
+  }, [data?.diagramType, data?.mermaidCode, isDarkMode]);
 
   if (!data || (!data.image && !data.mermaidCode)) {
     return null;
@@ -60,7 +181,7 @@ const ArchitectureSection = ({ data, imageUrlBuilder }) => {
         {/* Image Diagram */}
         {data.diagramType === 'image' && data.image && (
           <div className="space-y-4">
-            <div className="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+            <div className="mx-auto w-full max-w-[820px] rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
               <img
                 src={imageUrlBuilder(data.image)}
                 alt={data.image.alt || 'Architecture diagram'}
@@ -78,11 +199,13 @@ const ArchitectureSection = ({ data, imageUrlBuilder }) => {
         {/* Mermaid Diagram */}
         {data.diagramType === 'mermaid' && data.mermaidCode && (
           <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-6 overflow-x-auto">
-            <div 
-              ref={mermaidRef}
-              className="mermaid flex justify-center"
-            >
-              {data.mermaidCode}
+            <div className="mx-auto w-full max-w-[900px]">
+              <div 
+                ref={mermaidRef}
+                className="mermaid flex justify-center"
+              >
+                {data.mermaidCode}
+              </div>
             </div>
           </div>
         )}

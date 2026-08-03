@@ -19,7 +19,7 @@ const imageUrlBuilder = (source) => {
 const AboutPage = ({ profile, onContactClick, onDownloadCV, onViewProjects, onCollapseSidebar }) => {
   // Calculate stats from profile data
   const calculateYearsExperience = () => {
-    if (!profile?.experience || profile.experience.length === 0) return '5+';
+    if (!profile?.experience || profile.experience.length === 0) return '3+';
     const experiences = profile.experience;
     const earliestYear = Math.min(...experiences.map(exp => {
       if (exp.startDate) {
@@ -39,7 +39,7 @@ const AboutPage = ({ profile, onContactClick, onDownloadCV, onViewProjects, onCo
 
   const dataProcessed = () => {
     // This could be calculated from project data if available
-    return '50TB+';
+    return '30TB+';
   };
 
   // Group skills by category

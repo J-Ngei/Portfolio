@@ -402,11 +402,30 @@ export const projectPage = {
               hidden: ({ parent }) => parent?.displayType === 'image',
               fields: [
                 {
-                  name: 'headers',
-                  title: 'Table Headers',
+                  name: 'columns',
+                  title: 'Table Columns',
                   type: 'array',
-                  of: [{type: 'string'}],
-                  initialValue: ['Query Type', 'Without Index', 'With Index', 'Speedup']
+                  description: 'Add only the columns you need. The order controls how row cells map to columns.',
+                  of: [{
+                    type: 'object',
+                    fields: [
+                      {
+                        name: 'title',
+                        title: 'Column Title',
+                        type: 'string',
+                        validation: Rule => Rule.required()
+                      }
+                    ],
+                    preview: {
+                      select: {
+                        title: 'title'
+                      },
+                      prepare({title}) {
+                        return {title: title || 'Untitled Column'};
+                      }
+                    }
+                  }],
+                  validation: Rule => Rule.min(1)
                 },
                 {
                   name: 'rows',
@@ -415,12 +434,22 @@ export const projectPage = {
                   of: [{
                     type: 'object',
                     fields: [
-                      {name: 'col1', title: 'Column 1', type: 'string'},
-                      {name: 'col2', title: 'Column 2', type: 'string'},
-                      {name: 'col3', title: 'Column 3', type: 'string'},
-                      {name: 'col4', title: 'Column 4', type: 'string'}
+                      {
+                        name: 'cells',
+                        title: 'Cells',
+                        type: 'array',
+                        of: [{type: 'string'}],
+                        description: 'Add values in the same order as the columns.'
+                      }
                     ]
-                  }]
+                  }],
+                  validation: Rule => Rule.custom((rows, context) => {
+                    const columnCount = context.parent?.columns?.length || 0;
+                    if (!rows || columnCount === 0) return true;
+                    const invalidIndex = rows.findIndex((row) => (row?.cells?.length || 0) > columnCount);
+                    if (invalidIndex === -1) return true;
+                    return `Row ${invalidIndex + 1} has more cells than columns (${columnCount}).`;
+                  })
                 }
               ]
             },
