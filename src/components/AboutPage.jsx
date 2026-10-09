@@ -283,7 +283,7 @@ const AboutPage = ({ profile, onContactClick, onDownloadCV, onViewProjects, onCo
 
             {/* Additional Bio Text */}
             <p className="text-slate-600 dark:text-gray-300 leading-relaxed mb-6">
-              I'm currently pursuing an MSc in Software Engineering, focusing on large-scale systems and advanced computing. Long-term, I'm drawn to building intelligent spatial systems that support sustainable development, agriculture, and infrastructure planning.
+              I hold an MSc in Software Engineering, with a focus on large-scale systems and advanced computing. Long-term, I'm drawn to building intelligent spatial systems that support sustainable development, agriculture, and infrastructure planning.
             </p>
 
             {/* Action Buttons */}

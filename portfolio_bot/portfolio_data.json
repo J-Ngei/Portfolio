@@ -1,41 +1,81 @@
 {
-  "about": "James Ngei is a Geospatial Software Engineer who builds robust, cloud-native spatial systems that transform raw data into actionable intelligence. With a background in GIS and Software Engineering, he works at the intersection of mapping technology and solid system architecture. His path began with a fascination for how location shapes everything: while studying Geospatial Information Science he found the real power was in building systems that process spatial data at scale. Early work processing satellite datasets and building location analytics taught him that great geospatial systems need both spatial thinking and solid engineering. He is currently pursuing an MSc in Software Engineering, focusing on large-scale systems and advanced computing. Long-term, he is drawn to building intelligent spatial systems that support sustainable development, agriculture, and infrastructure planning. He prioritizes data accuracy and system reliability over feature bloat, and designs for real users — field workers with spotty connectivity, analysts processing terabytes of imagery — making complex spatial problems feel simple. Core stack and skills: Python, JavaScript/TypeScript, React, FastAPI, Django, Node.js and RESTful APIs; PostGIS, GDAL, GeoPandas, GeoServer, QGIS, ArcGIS Pro, Mapbox, Leaflet and OpenLayers; spatial analysis, multi-criteria evaluation, geostatistics, remote sensing and ML integration; Docker, Kubernetes, CI/CD, serverless architectures and COG workflows; microservices, API design, database optimization and distributed spatial systems; and geospatial data engineering including ETL pipelines, spatial databases, data validation, tile generation and quality assurance.",
+  "about": "James Ngei is a Geospatial Software Engineer who builds robust, cloud-native spatial systems that transform raw data into actionable intelligence. With a background in GIS and Software Engineering, he works at the intersection of mapping technology and solid system architecture. His path began with a fascination for how location shapes everything: while studying Geospatial Information Science he found the real power was in building systems that process spatial data at scale. Early work processing satellite datasets and building location analytics taught him that great geospatial systems need both spatial thinking and solid engineering. He holds an MSc in Software Engineering, with a focus on large-scale systems and advanced computing. Long-term, he is drawn to building intelligent spatial systems that support sustainable development, agriculture, and infrastructure planning. He prioritizes data accuracy and system reliability over feature bloat, and designs for real users — field workers with spotty connectivity, analysts processing terabytes of imagery — making complex spatial problems feel simple. Core stack and skills: Python, JavaScript/TypeScript, React, FastAPI, Django, Node.js and RESTful APIs; PostGIS, GDAL, GeoPandas, GeoServer, QGIS, ArcGIS Pro, Mapbox, Leaflet and OpenLayers; spatial analysis, multi-criteria evaluation, geostatistics, remote sensing and ML integration; Docker, Kubernetes, CI/CD, serverless architectures and COG workflows; microservices, API design, database optimization and distributed spatial systems; and geospatial data engineering including ETL pipelines, spatial databases, data validation, tile generation and quality assurance.",
+  "contact": {
+    "email": "james.nngei@gmail.com",
+    "linkedin": "https://linkedin.com/in/james-ngei-61461b1a5",
+    "github": "https://github.com/J-Ngei",
+    "notes": "Email is the best channel for system architecture and project discussions; James usually responds within 24 hours. LinkedIn is for professional networking and opportunities. The repositories for James's portfolio projects are hosted at https://github.com/James-Ngei."
+  },
+  "collaboration_areas": [
+    "Cloud-native spatial infrastructure: Kubernetes orchestration, serverless geospatial functions, event-driven architectures and scalable tile servers.",
+    "Distributed geospatial processing: multi-TB ETL pipelines, COG workflows, streaming spatial analytics and containerized processing workflows.",
+    "Complete GIS platforms: full-stack systems with robust APIs, real-time processing and modern mapping interfaces, deployed and production-ready.",
+    "System architecture and DevOps: CI/CD for geospatial workloads, infrastructure as code with Terraform, monitoring spatial services and performance optimization."
+  ],
   "projects": [
     {
       "id": "vector-etl-pipeline",
       "title": "Vector ETL Pipeline",
-      "description": "Production-grade vector data validation, repair, and loading in under 60 seconds.",
-      "details": "An automated ETL pipeline that validates incoming vector datasets, repairs invalid geometries, and loads them into a spatial database, completing the full cycle in under 60 seconds. It integrates into a CI/CD workflow so data quality checks run automatically on every ingest.",
-      "tags": ["Data Engineering", "PostGIS", "CI/CD"],
-      "code_url": null,
+      "description": "Production-grade vector data validation, repair, and loading into PostGIS in under 60 seconds.",
+      "details": "A production-grade geospatial ETL pipeline that automatically validates, cleans, and loads vector data into PostGIS, replacing manual GIS cleanup with a deterministic, reproducible, and auditable workflow. The problem: real-world vector data arrives broken. Invalid geometries cause database failures, mixed coordinate reference systems (CRS) break spatial analysis, and duplicates reduce trust in the data; manual cleanup took 2-3 days per dataset and could not be reproduced at scale. The solution is a CLI that runs validator, cleaner and loader stages, each independently testable and benchmarked. It detects invalid geometries, CRS mismatches and schema issues before ingestion; repairs invalid features deterministically with ST_MakeValid; normalizes all data to EPSG:4326; removes duplicates; and loads data with batched inserts and automatic GiST indexing for fast spatial queries. Results: processing time dropped from 2-3 days to under 60 seconds (a 99.7% reduction), the validator handles about 2,000 features per second, test coverage is 96%, and every run is fully reproducible. Key learnings: treating GIS workflows as software systems drastically improves reliability; data quality must be enforced rather than assumed; high test coverage made aggressive refactoring safe; and measured benchmarks prevented premature optimization.",
+      "tags": [
+        "Data Engineering",
+        "PostGIS",
+        "CI/CD",
+        "ETL Pipelines",
+        "Geospatial Engineering",
+        "Data Quality"
+      ],
+      "code_url": "https://github.com/James-Ngei/vector-etl-pipeline",
       "demo_url": null
     },
     {
       "id": "spatial-query-performance-optimization",
       "title": "Spatial Query Performance Optimization",
       "description": "14x to 292x query speedup through PostGIS spatial indexing on 625k+ features.",
-      "details": "A performance study on a dataset of over 625,000 features, using PostGIS spatial indexing strategies to achieve query speedups ranging from 14x to 292x. Built on FastAPI and SQLAlchemy, it demonstrates how the right indexing approach turns slow spatial queries into responsive API endpoints.",
-      "tags": ["PostGIS", "FastAPI", "SQLAlchemy"],
-      "code_url": null,
-      "demo_url": null
+      "details": "A spatial query benchmarking system that demonstrates the impact of GiST spatial indexing on PostGIS queries, using 625,951 building features from Nairobi, Kenya. The problem: without spatial indexes PostgreSQL performs sequential scans, computing spatial relationships for every row, so a simple 'find nearby buildings' query took over 500 milliseconds, too slow for production applications. The solution combines GiST indexes, which organize geometries in an R-tree hierarchy of bounding boxes, with a FastAPI and SQLAlchemy benchmark backend that toggles index state, forces sequential scans for a fair baseline, and parses EXPLAIN (ANALYZE, BUFFERS) output to capture execution time, planning time and scan type. A React dashboard runs benchmarks live with side-by-side comparisons and speedup metrics, and six spatial query patterns are documented to show when indexes help most. Results without vs with the index: small bounding box 108.38 ms vs 7.72 ms (14x); count in area 138.06 ms vs 11.45 ms (12x); distance filter 667.33 ms vs 3.75 ms (178x); 50 nearest neighbours 566.27 ms vs 1.94 ms (292x). Key learnings: reading EXPLAIN ANALYZE query plans (sequential scan vs bitmap index scan), how R-tree structures enable logarithmic-time spatial search, PostgreSQL tuning (enable_bitmapscan, work_mem, shared_buffers) for accurate benchmarking, and the importance of two-stage filtering (a bounding-box pre-filter followed by the exact predicate).",
+      "tags": [
+        "PostGIS",
+        "FastAPI",
+        "SQLAlchemy",
+        "GeoPandas",
+        "React"
+      ],
+      "code_url": "https://github.com/James-Ngei/Spatial-Query-Performance-Optimization",
+      "demo_url": "https://spatial-query-performance.jamesngei131.workers.dev/"
     },
     {
-      "id": "crop-suitability-engine",
+      "id": "crop-suitability-engine-a-spatial-decision-support-system",
       "title": "Crop Suitability Engine: A Spatial Decision Support System",
-      "description": "A full-stack geospatial MCDA platform for evaluating land suitability for crops.",
-      "details": "A full-stack spatial decision support system that evaluates land suitability for crops using multi-criteria decision analysis (MCDA). This was the Quantic capstone project: a FastAPI backend deployed on Render with a React frontend on GitHub Pages, driving an MCDA methodology over a spatial data pipeline.",
-      "tags": ["FastAPI", "Rasterio", "Python"],
-      "code_url": null,
-      "demo_url": null
+      "description": "A full-stack geospatial MCDA platform for evaluating land suitability for crops across Kenyan counties.",
+      "details": "A full-stack spatial decision support system that evaluates land suitability for crop cultivation across Kenyan counties using multi-criteria decision analysis (MCDA), fuzzy normalization, weighted overlay analysis and an interactive web dashboard. This was James's Quantic capstone project: a FastAPI backend deployed on Render with a React frontend on GitHub Pages. The problem: crops such as cotton in Kenya's arid and semi-arid lands are often planted on land with incompatible rainfall, soil or terrain, and existing GIS workflows are inaccessible to non-specialists and produce static outputs that cannot be explored interactively. The solution: a config-driven pipeline where each county's thresholds, layer files, fuzzy functions and weights live in one JSON config, so switching counties needs no code changes. CHIRPS, SRTM, SoilGrids and WorldClim rasters are realigned to a common grid, then trapezoidal, Gaussian and linear-descending membership functions map raw values to a 0-100 suitability scale. A POST /analyze endpoint runs the weighted overlay in memory against cached normalized layers using user-defined weights, applies a county-boundary mask and a protected-areas mask (from Protected Planet), and returns classified statistics. Results are rendered server-side to transparent PNG overlays (Pillow) in four suitability classes and placed on a Leaflet map. Interactive sliders redistribute weights so they always sum to 1.0, enforced on both client and server. Default cotton weights are rainfall 25%, elevation 20%, temperature 20%, soil 20% and slope 15%. Results: mean analysis runtime under 2 seconds; caching the normalized arrays at startup removed about 800 ms of per-request disk loading and brought responses under 200 ms (4x faster); and moving from hardcoded thresholds to per-county configs cut onboarding a new county (for example from Bungoma to Kitui) from days to under an hour. Key learnings: real raster data always needs an alignment pass; config-driven design scales where hardcoding does not; showing and exposing the weights builds trust with agronomists; the choice of fuzzy function encodes agronomic assumptions and should be documented; and for county-scale analysis, server-rendered PNG overlays were simpler than Cloud-Optimized GeoTIFFs and needed no tile server.",
+      "tags": [
+        "FastAPI",
+        "Rasterio",
+        "Python",
+        "NumPy",
+        "Geospatial Analysis",
+        "REST APIs",
+        "MCDA"
+      ],
+      "code_url": "https://github.com/James-Ngei/Suitability-Engine",
+      "demo_url": "https://james-ngei.github.io/Suitability-Engine/"
     },
     {
-      "id": "cog-raster-pipeline",
+      "id": "cloud-optimized-raster-processing-and-delivery-pipeline",
       "title": "Cloud-Optimized Raster Processing & Delivery Pipeline",
-      "description": "A Dockerized pipeline that converts raw DEM rasters into Cloud-Optimized GeoTIFFs.",
-      "details": "A Dockerized processing pipeline that converts raw DEM rasters into Cloud-Optimized GeoTIFFs (COGs) using GDAL, then delivers them for efficient cloud-native access and streaming without downloading whole files.",
-      "tags": ["Python", "Docker", "GDAL"],
-      "code_url": null,
-      "demo_url": null
+      "description": "A Dockerized pipeline that converts raw DEM rasters into Cloud-Optimized GeoTIFFs (COGs) for fast web delivery.",
+      "details": "An efficient, reproducible, cloud-native pipeline for preparing and serving large raster datasets such as SRTM digital elevation models (DEMs) on the web. The problem: DEMs are typically distributed as monolithic GeoTIFFs, so web users must download hundreds of megabytes even to view a small region, making streaming and interactive zooming impractical. The solution runs in Docker for reproducibility across environments and has four stages: inspection, which detects inefficient tiling, compression and missing overviews; conversion to COG with rio-cogeo and GDAL, applying DEFLATE compression and building internal overview pyramids for multi-zoom efficiency; validation against COG standards so tiling, overviews and HTTP range reads work correctly; and serving over plain static HTTP to a Leaflet viewer, with no specialized tile server required. Results: 11.7x faster loading, about 10,000x less data transferred, roughly 50 KB per tile and sub-second tile loading, in exchange for a deliberate 25.7% increase in file size. Key learnings: pre-computed overviews plus a tiled layout drastically improve web access; Docker ensures reproducibility; a slightly larger file is a strategic trade-off for performance; and standard HTTP hosting can replace specialized tile servers for COGs.",
+      "tags": [
+        "Python",
+        "Docker",
+        "GDAL",
+        "rio-cogeo",
+        "COG",
+        "Leaflet"
+      ],
+      "code_url": "https://github.com/James-Ngei/Cloud-Optimised-DEM-Processing-Pipeline",
+      "demo_url": "https://cog-pipeline.jamesngei131.workers.dev/"
     }
   ]
 }

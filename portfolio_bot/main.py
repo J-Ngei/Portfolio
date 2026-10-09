@@ -31,7 +31,7 @@ client = Groq(api_key=GROQ_API_KEY)
 
 # ---- Load portfolio content once at startup ----
 DATA_PATH = Path(__file__).parent / "portfolio_data.json"
-with open(DATA_PATH) as f:
+with open(DATA_PATH, encoding="utf-8") as f:
     PORTFOLIO = json.load(f)
 
 
@@ -39,9 +39,9 @@ def build_system_prompt(data: dict) -> str:
     lines = [
         "You are the assistant embedded on James Ngei's portfolio site.",
         "Answer visitor questions using ONLY the information below.",
-        "If a question is unrelated to James's background, skills, or "
-        "projects, say you can only discuss James's portfolio and steer "
-        "the conversation back.",
+        "If a question is unrelated to James's background, skills, "
+        "projects, or how to get in touch, say you can only discuss "
+        "James's portfolio and steer the conversation back.",
         "Keep answers concise and conversational.",
         "",
         "## About",
@@ -58,6 +58,19 @@ def build_system_prompt(data: dict) -> str:
             lines.append(f"  Code: {p['code_url']}")
         if p.get("demo_url"):
             lines.append(f"  Demo: {p['demo_url']}")
+
+    contact = data.get("contact")
+    if contact:
+        lines += ["", "## Contact"]
+        for label, key in (("Email", "email"), ("LinkedIn", "linkedin"), ("GitHub", "github")):
+            if contact.get(key):
+                lines.append(f"- {label}: {contact[key]}")
+        if contact.get("notes"):
+            lines.append(contact["notes"])
+
+    if data.get("collaboration_areas"):
+        lines += ["", "## Areas of Collaboration"]
+        lines += [f"- {area}" for area in data["collaboration_areas"]]
     return "\n".join(lines)
 
 
